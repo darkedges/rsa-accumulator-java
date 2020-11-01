@@ -30,7 +30,7 @@ public class Pair<T> {
 
     @Override public String toString() {
         final StringBuilder sb = new StringBuilder("Pair{");
-        sb.append("frist=").append(first);
+        sb.append("first=").append(first);
         sb.append(", second=").append(second);
         sb.append('}');
         return sb.toString();
