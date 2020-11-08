@@ -1,7 +1,8 @@
 package edu.pku;
 
 public class Pair<T> {
-    private T first;
+
+	private T first;
 
     public T getSecond() {
         return second;
@@ -14,6 +15,10 @@ public class Pair<T> {
 
     private T second;
 
+    public Pair() {
+    	
+    }
+    
     public Pair(T frist, T second) {
         this.first = frist;
         this.second = second;

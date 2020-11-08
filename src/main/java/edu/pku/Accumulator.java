@@ -12,8 +12,15 @@ public class Accumulator {
 	private static int RSA_KEY_SIZE = 3072;
 	private static int RSA_PRIME_SIZE = RSA_KEY_SIZE / 2;
 	private static int ACCUMULATED_PRIME_SIZE = 128;
+	private static BigInteger N;
+	
+	static {
+		Pair<BigInteger> bigIntegerPair = Util.generateTwoLargeDistinctPrimes(RSA_PRIME_SIZE);
+		BigInteger p = bigIntegerPair.getFirst();
+		BigInteger q = bigIntegerPair.getSecond();
+		N = p.multiply(q);
+	}
 
-	private BigInteger N;
 	public BigInteger commitment;
 	private BigInteger A0;
 	final private EnhancedRandom random;
@@ -21,10 +28,6 @@ public class Accumulator {
 
 	public Accumulator() {
 		data = new HashMap<>();
-		Pair<BigInteger> bigIntegerPair = Util.generateTwoLargeDistinctPrimes(RSA_PRIME_SIZE);
-		BigInteger p = bigIntegerPair.getFirst();
-		BigInteger q = bigIntegerPair.getSecond();
-		N = p.multiply(q);
 		random = new EnhancedRandom();
 		A0 = random.nextBigInteger(BigInteger.ZERO, N);
 		commitment = A0;
@@ -65,7 +68,8 @@ public class Accumulator {
 			return null;
 		} else {
 			BigInteger product = iterateAndGetProduct(x);
-			return new Pair<BigInteger>(A0.modPow(product, N), Util.hashToPrime(x, ACCUMULATED_PRIME_SIZE, getNonce(x)).getFirst());
+			return new Pair<BigInteger>(A0.modPow(product, N),
+					Util.hashToPrime(x, ACCUMULATED_PRIME_SIZE, getNonce(x)).getFirst());
 		}
 	}
 
@@ -118,8 +122,8 @@ public class Accumulator {
 	 * @return
 	 * @author Lei, HUANG (lhuang@pku.edu.cn): 2019-04-17 22:45:02
 	 */
-	private static boolean doVerifyMembership(BigInteger A, BigInteger x, BigInteger proof, BigInteger n) {
-		return proof.modPow(x, n).compareTo(A) == 0;
+	private static boolean doVerifyMembership(BigInteger A, BigInteger x, BigInteger proof) {
+		return proof.modPow(x, N).compareTo(A) == 0;
 	}
 
 	/**
@@ -135,6 +139,14 @@ public class Accumulator {
 	 */
 	public static boolean verifyMembership(BigInteger A, BigInteger x, BigInteger nonce, BigInteger proof,
 			BigInteger n) {
-		return doVerifyMembership(A, Util.hashToPrime(x, ACCUMULATED_PRIME_SIZE, nonce).getFirst(), proof, n);
+		return doVerifyMembership(A, Util.hashToPrime(x, ACCUMULATED_PRIME_SIZE, nonce).getFirst(), proof);
+	}
+
+	public static boolean verifyMembership(BigInteger commitment, Pair<BigInteger> proof) {
+		return doVerifyMembership(commitment, proof.getSecond(), proof.getFirst());
+	}
+
+	public static boolean verifyMembership(VerifyRequest verifyRequest) {
+		return verifyMembership(verifyRequest.getCommitment(), verifyRequest.getProof());
 	}
 }

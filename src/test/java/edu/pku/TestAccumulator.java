@@ -9,13 +9,16 @@ import java.math.BigInteger;
 public class TestAccumulator {
     @Test
     public void testAccumulator() {
-        for (int i = 0; i < 100; i++) {
-            BigInteger  mem      = new EnhancedRandom().nextBigInteger();
-            Accumulator accu1    = new Accumulator();
-            BigInteger  a1       = accu1.add(mem);
-            BigInteger  witness1 = accu1.proveMembership(mem);
-            BigInteger  nonce1   = accu1.getNonce(mem);
-            BigInteger  n1       = accu1.getN();
+        for (int i = 0; i < 1; i++) {
+            BigInteger       mem      = new EnhancedRandom().nextBigInteger();
+            Accumulator      accu1    = new Accumulator();
+            System.out.println(accu1.commitment);
+            BigInteger       a1       = accu1.add(mem);
+            Pair<BigInteger> pair     = accu1.proveMembership(mem);
+            System.out.println(pair);
+            BigInteger       witness1 = pair.getFirst();
+            BigInteger       nonce1   = accu1.getNonce(mem);
+            BigInteger       n1       = accu1.getN();
             try {
                 Assert.assertTrue(Accumulator.verifyMembership(a1, mem, nonce1, witness1, n1));
             } catch (AssertionError e) {
